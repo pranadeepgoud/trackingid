@@ -1,4 +1,5 @@
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,7 +37,9 @@
                 <button class="btn btn-primary" onclick="openTracking()">Track (17 Track)</button>
                 <button class="btn btn-primary" onclick="openTrackingg()">Track (Aftership)</button>
 
-               <p><h7>NOTE: First Retrieve & Then Track</h7></p>
+                <p>
+                    <h7>NOTE: First Retrieve & Then Track</h7>
+                </p>
             </div>
         </div>
     </div>
@@ -44,27 +47,27 @@
         function extractTracking() {
             // Get user input
             var userInput = document.getElementById('userInput').value;
-
-            // Define a pattern to match Tracking values with "Tracking Number:"
-            var Pattern = /Tracking Number: ([A-Z0-9]{6,35})/g;
-
+    
+            // Define a pattern to match Tracking values between "Tracking Number:" and "Carrier:"
+            var pattern = /Tracking Number:\s*([A-Z0-9\s]{6,35})\s*Carrier:/g;
+    
             // Apply the regex pattern to the user input
-            var matches = userInput.match(Pattern);
-
+            var matches = userInput.match(pattern);
+    
             // Construct the output URL with tracking IDs
             if (matches) {
-                var trackingIDs = matches.map(match => match.replace("Tracking Number: ", ""));
+                var trackingIDs = matches.map(match => match.replace("Tracking Number:", "").replace("Carrier:", "").trim().replace(/\s/g, ""));
                 document.getElementById('output').textContent = trackingIDs.join('\n');
                 var limitedTrackingIDs = trackingIDs.slice(0, 30);  
-                var outputUrl = "https://t.17track.net/en#nums=" + trackingIDs.join(',');
+                var outputUrl = "https://t.17track.net/en#nums=" + limitedTrackingIDs.join(',');
                 window.outputUrl = outputUrl;  
-                var outputUrl1 = "https://www.aftership.com/track?t=" + trackingIDs.join(',');
+                var outputUrl1 = "https://www.aftership.com/track?t=" + limitedTrackingIDs.join(',');
                 window.outputUrl1 = outputUrl1;
-            }else {
+            } else {
                 alert("No Tracking Numbers found.");
             }
         }
-
+    
         function openTracking() {
             if (window.outputUrl) {
                 window.open(window.outputUrl, '_blank');
@@ -82,3 +85,4 @@
     </script>
 </body>
 </html>
+
