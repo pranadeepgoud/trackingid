@@ -33,53 +33,57 @@
                 </div>
             </div>
             <div class="col-12 text-center">
-                <button class="btn btn-primary" type="submit" onclick="extractTracking()">Retrieve</button>
-                <button class="btn btn-primary" onclick="openTracking()">Track (17 Track)</button>
-                <button class="btn btn-primary" onclick="openTrackingg()">Track (Aftership)</button>
+                    <button class="btn btn-primary btn-small" id="open17Track">Track(17Track)</button>
+                    <button class="btn btn-primary btn-small" id="openAfterShip">Track(Aftership)</button>
+                    <button class="btn btn-primary btn-small" id="openFedex">Track(Fedex)</button>
+                    <button class="btn btn-primary btn-small" id="openUSPS">Track(USPS)</button>
 
-               <p><h7>NOTE: First Retrieve & Then Track</h7></p>
             </div>
         </div>
     </div>
     <script>
-        function extractTracking() {
-            // Get user input
-            var userInput = document.getElementById('userInput').value;
+        function trackAndCopy(trackerUrl) {
+    var userInput = document.getElementById('userInput').value;
+    var pattern = /Tracking Number:\s*([A-Za-z0-9\s()-]{6,35})\s*Carrier:/g;
+    var matches = userInput.match(pattern);
 
-            // Define a pattern to match Tracking values with "Tracking Number:"
-            var Pattern = /Tracking Number:\s*([A-Z0-9\s]{6,35})\s*Carrier:/g;
+    if (matches) {
+        var trackingIDs = matches.map(match => match.replace("Tracking Number:", "").replace("Carrier:", "").trim().replace(/\s/g, "").replace(/[-()]/g, "").toUpperCase());
+        document.getElementById('output').textContent = trackingIDs.join('\n');
+        var outputUrl = trackerUrl + trackingIDs.join(',');
+        window.open(outputUrl, '_blank');
+        var trackingIDsText = trackingIDs.join('\n');
+        copyToClipboard(trackingIDsText);
+    } else {
+        alert("No Tracking Numbers found.");
+    }
+}
 
-            // Apply the regex pattern to the user input
-            var matches = userInput.match(Pattern);
+document.getElementById('open17Track').addEventListener('click', function() {
+    trackAndCopy("https://t.17track.net/en#nums=");
+});
 
-            // Construct the output URL with tracking IDs
-            if (matches) {
-                var trackingIDs = matches.map(match => match.replace("Tracking Number:", "").replace("Carrier:", "").trim().replace(/\s/g, ""));
-                document.getElementById('output').textContent = trackingIDs.join('\n');
-                var limitedTrackingIDs = trackingIDs.slice(0, 30);  
-                var outputUrl = "https://t.17track.net/en#nums=" + trackingIDs.join(',');
-                window.outputUrl = outputUrl;  
-                var outputUrl1 = "https://www.aftership.com/track?t=" + trackingIDs.join(',');
-                window.outputUrl1 = outputUrl1;
-            }else {
-                alert("No Tracking Numbers found.");
-            }
-        }
+document.getElementById('openAfterShip').addEventListener('click', function() {
+    trackAndCopy("https://www.aftership.com/track?t=");
+});
 
-        function openTracking() {
-            if (window.outputUrl) {
-                window.open(window.outputUrl, '_blank');
-            } else {
-                alert("Retrieve & then Press Track");
-            }
-        }
-        function openTrackingg() {
-            if (window.outputUrl1) {
-                window.open(window.outputUrl1, '_blank');
-            } else {
-                alert("Retrieve & then Press Track");
-            }
-        }
+document.getElementById('openFedex').addEventListener('click', function() {
+    trackAndCopy("https://www.fedex.com/fedextrack/?trknbr=");
+});
+
+document.getElementById('openUSPS').addEventListener('click', function() {
+    trackAndCopy("https://tools.usps.com/go/TrackConfirmAction?tRef=fullpage&tLc=5&text28777=&tLabels=");
+});
+
+function copyToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+}
+
     </script>
 </body>
 </html>
